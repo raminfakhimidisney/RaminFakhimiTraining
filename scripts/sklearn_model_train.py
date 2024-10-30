@@ -20,7 +20,7 @@ from datetime import datetime
 scipy.linalg.pinv2 = np.linalg.pinv
  
 #Read in data
-path = str('/mnt/data/{}/WineQualityData.csv'.format(os.environ.get('DOMINO_PROJECT_NAME')))
+path = str('/mnt/data/RaminFakhimiTraining/WineQualityData.csv')
 df = pd.read_csv(path)
 print('Read in {} rows of data'.format(df.shape[0]))
 
@@ -47,7 +47,8 @@ y = df['quality'].astype('float64')
 
 # create a new MLFlow experiemnt
 #mlflow.set_experiment(experiment_name=os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME'))
-mlflow.set_experiment(experiment_name=os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME') + " " + os.environ.get('MLFLOW_NAME'))
+expriment_name = (os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME') + " ")
+mlflow.set_experiment(experiment_name=expriment_name)
 
 with mlflow.start_run():
     # Set MLFlow tag to differenciate the model approaches

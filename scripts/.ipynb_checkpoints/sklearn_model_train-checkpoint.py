@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import scipy.linalg
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sklearn
@@ -14,9 +15,12 @@ import mlflow.sklearn
 from mlflow.store.artifact.runs_artifact_repo import RunsArtifactRepository
 from mlflow import MlflowClient
 from datetime import datetime
+
+# Patch scipy.linalg to use np.linalg.pinv instead of pinv2
+scipy.linalg.pinv2 = np.linalg.pinv
  
 #Read in data
-path = str('/mnt/data/{}/WineQualityData.csv'.format(os.environ.get('DOMINO_PROJECT_NAME')))
+path = str('/mnt/data/RaminFakhimiTraining/WineQualityData.csv')
 df = pd.read_csv(path)
 print('Read in {} rows of data'.format(df.shape[0]))
 
@@ -43,8 +47,8 @@ y = df['quality'].astype('float64')
 
 # create a new MLFlow experiemnt
 #mlflow.set_experiment(experiment_name=os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME'))
-mlflow.set_experiment(experiment_name=os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME') + " " + os.environ.get('MLFLOW_NAME'))
-
+expriment_name = (os.environ.get('DOMINO_PROJECT_NAME') + " " + os.environ.get('DOMINO_STARTING_USERNAME') + " ")
+mlflow.set_experiment(experiment_name=expriment_name)
 
 with mlflow.start_run():
     # Set MLFlow tag to differenciate the model approaches
@@ -55,7 +59,10 @@ with mlflow.start_run():
 
     #initiate and fit Gradient Boosted Classifier
     print('Training model...')
-    gbr = GradientBoostingRegressor(loss='squared_error',learning_rate = 0.15, n_estimators=75, criterion = 'squared_error')
+    #gbr = GradientBoostingRegressor(loss='squared_error',learning_rate = 0.15, n_estimators=75, criterion = 'squared_error')
+    #gbr = GradientBoostingRegressor(loss='ls', learning_rate=0.15, n_estimators=75, criterion='squared_error')
+    gbr = GradientBoostingRegressor(loss='ls', learning_rate=0.15, n_estimators=75, criterion='mse')
+
     gbr.fit(X_train,y_train)
 
     #Predict test set
